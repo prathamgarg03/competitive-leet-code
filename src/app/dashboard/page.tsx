@@ -1,5 +1,5 @@
-import CodeEditor from "@/app/dashboard/CodeEditor";
-import PowersPanel from "@/app/dashboard/PowersPanel";
+import CodeEditor from "@/components/CodeEditor";
+import PowersPanel from "@/components/PowersPanel";
 
 
 export default function DashboardPage() {
