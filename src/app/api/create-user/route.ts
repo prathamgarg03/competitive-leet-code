@@ -1,7 +1,8 @@
+import {NextApiRequest} from "next";
 
-export async function GET() {
-    return Response.json({
-        status: 200,
-        message: "Hello, world!"
-    }, {status: 200})
+export async function POST(req: NextApiRequest) {
+    const { type, data } = req.body;
+    if(type === "user-created") {
+        console.log("User created", data);
+    }
 }

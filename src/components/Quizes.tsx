@@ -18,7 +18,6 @@ export function QuizListPage() {
                 setQuizzes(response.quizzes);
             }
         }
-
         fetchQuizzes();
     }, []);
 
