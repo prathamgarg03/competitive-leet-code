@@ -22,13 +22,12 @@ export default function JoinGamePage() {
   };
 
   const joinGame = () => {
-    //TODO : GAME LOGIN
-    // if (!roomNumber) return;
-    // setLoading(true);
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   router.push(`/game/${roomNumber}`); // Redirect to game room
-    // }, 1000);
+    if (!roomNumber) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      router.push(`/game/${roomNumber}`); // Redirect to game room
+    }, 1000);
   };
 
   return (
@@ -79,7 +78,7 @@ export default function JoinGamePage() {
             <Button
               className="w-full bg-green-500 hover:bg-green-600 text-white"
               disabled={loading}
-              onClick= { ()=>console.log(roomNumber)}
+              onClick={(createGame)}
             >
               {loading ? "Creating..." : "Create New Game"}
             </Button>
