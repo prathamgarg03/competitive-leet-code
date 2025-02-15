@@ -4,6 +4,8 @@ import { SignIn } from '@clerk/nextjs';
 
 export default function SignInPage() {
     return (
-        <SignIn forceRedirectUrl="/dashboard" />
+        <SignIn
+            forceRedirectUrl = "/dashboard"
+        />
     );
 }
