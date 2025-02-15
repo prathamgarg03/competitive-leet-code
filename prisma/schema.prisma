@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Quiz {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  questions Question[] @relation("QuizQuestions")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Question {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  quizId     String     @db.ObjectId
+  question   String
+  input      String[]
+  output     String[]
+  difficulty Difficulty
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade, name: "QuizQuestions")
+}
