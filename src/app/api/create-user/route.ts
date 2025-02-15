@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     return Response.json({
         status: 200,
         message: "Hello, world!"
