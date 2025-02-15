@@ -1,46 +1,28 @@
-import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { db } from "@/lib/db"
 
-interface CreateUserInput {
+type CreateUserProps = {
     clerkId: string;
-    email: string;
     username: string;
+    email: string;
 }
 
-export async function CreateUser({ clerkId, email, username }: CreateUserInput) {
-    if (!clerkId || !email || !username) {
-        throw new Error("All fields (clerkId, email, and username) must be provided.");
-    }
-
+export const CreateUser = async ({
+     clerkId,
+     username,
+     email
+ }: CreateUserProps) => {
     try {
-        const existingUser = await db.user.findFirst({
-            where: {
-                OR: [
-                    { clerkId },
-                    { email }
-                ]
-            }
-        });
-
-        if (existingUser) {
-            throw new Error("User with this Clerk ID or email already exists.");
-        }
-
         const user = await db.user.create({
             data: {
                 clerkId,
-                email,
                 username,
-            },
+                email,
+            }
         });
 
         return user;
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            console.error("Prisma error while creating user:", error.message);
-        } else {
-            console.error("Unexpected error while creating user:", error);
-        }
-        throw new Error("Failed to create user. Please try again.");
+        console.error("Error creating user:", error);
+        throw error;
     }
-}
+};
