@@ -7,10 +7,10 @@
 // import { Button } from "@/components/ui/button";
 // import { getQuizzes } from '@/actions/quiz-actions';
 
-interface Quiz {
-  id: string
-  title: string
-}
+// interface Quiz {
+//   id: string
+//   title: string
+// }
 
 export default function JoinGamePage() {
   // const router = useRouter()
