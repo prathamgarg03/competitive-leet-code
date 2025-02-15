@@ -2,6 +2,15 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 
+function fixBase64Padding(base64String: string) {
+    const padding = 4 - (base64String.length % 4);
+    if (padding !== 4) {
+        return base64String + "=".repeat(padding);
+    }
+    return base64String;
+}
+
+
 export async function POST(req: Request) {
     const SIGNING_SECRET = process.env.SIGNING_SECRET
 
@@ -30,13 +39,14 @@ export async function POST(req: Request) {
     const body = JSON.stringify(payload)
 
     let evt: WebhookEvent
+    const fixedSvixSignature = fixBase64Padding(svix_signature);
 
     // Verify payload with headers
     try {
         evt = wh.verify(body, {
             'svix-id': svix_id,
             'svix-timestamp': svix_timestamp,
-            'svix-signature': svix_signature,
+            'svix-signature': fixedSvixSignature, // Use the fixed signature
         }) as WebhookEvent
     } catch (err) {
         console.error('Error: Could not verify webhook:', err)
