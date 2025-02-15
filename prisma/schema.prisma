@@ -13,23 +13,48 @@ enum Difficulty {
   HARD
 }
 
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId   String   @unique // This will store Clerk's user ID
-  email     String   @unique
-  username  String?
-  // friends        Friend[] // Friends list (many-to-many relationship)
-  // quizzes        Quiz[]   // Quizzes created by the user
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId      String          @unique
+  email        String          @unique
+  username     String?
+  quizzes      Quiz[]          @relation("UserQuizzes")
+  sentRequests FriendRequest[] @relation("SentFriendRequests")
+  recvRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  Quiz         Quiz[]
+}
+
+model FriendRequest {
+  id         String              @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String              @db.ObjectId
+  receiverId String              @db.ObjectId
+  status     FriendRequestStatus @default(PENDING)
+  sender     User                @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User                @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@unique([senderId, receiverId])
 }
 
 model Quiz {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   title     String
-  questions Question[] @relation("QuizQuestions")
+  userId    String     @db.ObjectId
+  user      User       @relation("UserQuizzes", fields: [userId], references: [id], onDelete: Cascade)
+  questions Question[] @relation("QuizToQuestions")
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  User      User       @relation(fields: [userId], references: [id])
+  Question  Question[]
 }
 
 model Question {
@@ -41,6 +66,6 @@ model Question {
   difficulty Difficulty
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-
-  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade, name: "QuizQuestions")
+  quiz       Quiz       @relation("QuizToQuestions", fields: [quizId], references: [id], onDelete: Cascade)
+  Quiz       Quiz       @relation(fields: [quizId], references: [id])
 }

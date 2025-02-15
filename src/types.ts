@@ -9,3 +9,8 @@ export type QuizInput = {
     title: string
     questions: QuestionInput[]
 }
+
+export type Friends = {
+    id: string
+    username: string
+}
