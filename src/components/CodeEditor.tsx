@@ -3,8 +3,13 @@
 import React, { useState } from "react";
 import Editor from "@monaco-editor/react";
 
-const CodeEditor = () => {
+const CodeEditor = ({ setOutput }: { setOutput: React.Dispatch<React.SetStateAction<string[]>> }) => {
   const [code, setCode] = useState("// Write your code here...");
+
+  // Fix: Function to update terminal output
+  const runCode = () => {
+    setOutput((prevOutput) => [...prevOutput, `> Running Code...\n${code}`, "Execution complete!"]);
+  };
 
   return (
     <div className="flex flex-col justify-start h-screen w-full p-4">
@@ -16,12 +21,14 @@ const CodeEditor = () => {
           defaultValue={code}
           theme="vs-dark"
           onChange={(value) => setCode(value || "")}
-          options={{
-            minimap: { enabled: false }, // Hide minimap for better space usage
-            automaticLayout: true, // Ensure it resizes properly
-          }}
         />
       </div>
+      <button
+        onClick={runCode}
+        className="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+      >
+        Run Code
+      </button>
     </div>
   );
 };
