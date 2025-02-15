@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getQuizzes } from '@/actions/quiz-actions';
+// import { getQuizzes } from '@/actions/quiz-actions';
 
 interface Quiz {
   id: string
@@ -19,34 +19,34 @@ export default function JoinGamePage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
   const [selectedQuizId, setSelectedQuizId] = useState("")
 
-  useEffect(() => {
-    async function fetchQuizzes() {
-      const response = await getQuizzes()
-      if (response.success && response.quizzes) {
-        setQuizzes(response.quizzes)
-      }
-    }
-    fetchQuizzes()
-  }, [])
-
-  const createGame = () => {
-    if (!selectedQuizId) return alert('Please select a quiz')
-    setLoading(true)
-    const newRoomNumber = Math.floor(100000 + Math.random() * 900000)
-    setTimeout(() => {
-      setLoading(false)
-      router.push(`/game/${newRoomNumber}?quizId=${selectedQuizId}`)
-    }, 1500)
-  };
-
-  const joinGame = () => {
-    if (!roomNumber || !selectedQuizId) return alert('Please enter a room number and select a quiz')
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false);
-      router.push(`/game/${roomNumber}?quizId=${selectedQuizId}`)
-    }, 1000)
-  };
+  // useEffect(() => {
+  //   async function fetchQuizzes() {
+  //     const response = await getQuizzes()
+  //     if (response.success && response.quizzes) {
+  //       setQuizzes(response.quizzes)
+  //     }
+  //   }
+  //   fetchQuizzes()
+  // }, [])
+  //
+  // const createGame = () => {
+  //   if (!selectedQuizId) return alert('Please select a quiz')
+  //   setLoading(true)
+  //   const newRoomNumber = Math.floor(100000 + Math.random() * 900000)
+  //   setTimeout(() => {
+  //     setLoading(false)
+  //     router.push(`/game/${newRoomNumber}?quizId=${selectedQuizId}`)
+  //   }, 1500)
+  // };
+  //
+  // const joinGame = () => {
+  //   if (!roomNumber || !selectedQuizId) return alert('Please enter a room number and select a quiz')
+  //   setLoading(true)
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //     router.push(`/game/${roomNumber}?quizId=${selectedQuizId}`)
+  //   }, 1000)
+  // };
 
   return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-700 text-white">
@@ -81,7 +81,7 @@ export default function JoinGamePage() {
               <Button
                   className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
                   disabled={!roomNumber || !selectedQuizId || loading}
-                  onClick={joinGame}
+                  // onClick={joinGame}
               >
                 {loading ? "Joining..." : "Join Game"}
               </Button>
@@ -96,7 +96,7 @@ export default function JoinGamePage() {
             <Button
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
                 disabled={!selectedQuizId || loading}
-                onClick={createGame}
+                // onClick={createGame}
             >
               {loading ? "Creating..." : "Create New Game"}
             </Button>
