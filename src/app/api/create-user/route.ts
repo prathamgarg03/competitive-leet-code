@@ -2,50 +2,34 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 
-function fixBase64Padding(str: string): string {
-    const remainder = str.length % 4;
-    if (remainder !== 0) {
-        return str + '='.repeat(4 - remainder);
-    }
-    return str;
-}
-
 export async function POST(req: Request) {
     const SIGNING_SECRET = process.env.SIGNING_SECRET;
-
     if (!SIGNING_SECRET) {
         throw new Error('Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local');
     }
 
-    // Optionally fix the signing secret if it's expected to be Base64-encoded
-    const fixedSigningSecret = fixBase64Padding(SIGNING_SECRET);
-
-    // Create new Svix instance with secret
-    const wh = new Webhook(fixedSigningSecret);
+    // Use the signing secret directly
+    const wh = new Webhook(SIGNING_SECRET);
 
     // Get headers
     const headerPayload = await headers();
     const svix_id = headerPayload.get('svix-id');
     const svix_timestamp = headerPayload.get('svix-timestamp');
-    let svix_signature = headerPayload.get('svix-signature');
+    const svix_signature = headerPayload.get('svix-signature');
 
     if (!svix_id || !svix_timestamp || !svix_signature) {
         return new Response('Error: Missing Svix headers', { status: 400 });
     }
 
-    // Trim and fix padding for the signature
-    svix_signature = fixBase64Padding(svix_signature.trim());
+    // Log header values with delimiters so you can inspect whitespace or extra characters
+    console.log('svix-id:', JSON.stringify(svix_id));
+    console.log('svix-timestamp:', JSON.stringify(svix_timestamp));
+    console.log('svix-signature:', JSON.stringify(svix_signature));
 
-    // Get raw body
+    // Use the raw body (as string) exactly as received
     const body = await req.text();
 
-    // (Optional) Log header values to debug issues
-    console.log('svix-id:', svix_id);
-    console.log('svix-timestamp:', svix_timestamp);
-    console.log('svix-signature:', svix_signature);
-
     let evt: WebhookEvent;
-
     try {
         evt = wh.verify(body, {
             'svix-id': svix_id,
