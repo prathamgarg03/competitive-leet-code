@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const wh = new Webhook(fixedSigningSecret);
 
     // Get headers
-    const headerPayload = headers();
+    const headerPayload = await headers();
     const svix_id = headerPayload.get('svix-id');
     const svix_timestamp = headerPayload.get('svix-timestamp');
     let svix_signature = headerPayload.get('svix-signature');
