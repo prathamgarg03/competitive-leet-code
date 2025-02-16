@@ -29,7 +29,9 @@ import {GetFriendRequestsFromId, GetFriendsFromId} from "@/lib/friends";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import {AcceptFriendRequest} from "@/actions/friend-request";
+import {AcceptFriendRequest, SendFriendRequest} from "@/actions/friend-request";
+import {FriendRequest} from "@prisma/client";
+import {Input} from "@/components/ui/input";
 
 const menuItems = [
     { title: "Friends", icon: <Users className="w-4 h-4" /> },
@@ -51,6 +53,12 @@ export const FriendsCard = ({ userId }: FriendsCardProps) => {
     const [requests, setRequests] = useState<Friends[]>([]);
     const [requestLoading, setRequestLoading] = useState<boolean>(true);
     const [requestError, setRequestError] = useState<string | null>(null);
+
+    const [friendEmail, setFriendEmail] = useState<string>("");
+    const [sendRequest, setSendRequest] = useState<FriendRequest>();
+    const [sendRequestLoading, setSendRequestLoading] = useState<boolean>(false);
+    const [sendRequestError, setSendRequestError] = useState<string | null>(null);
+
 
     useEffect(() => {
         const getFriends = async () => {
@@ -79,7 +87,20 @@ export const FriendsCard = ({ userId }: FriendsCardProps) => {
         }
         getFriends();
         getRequests();
+
     }, [userId]);
+
+    const sendFriendRequest = async () => {
+        setSendRequestLoading(true);
+        try {
+            const friendRequest = await SendFriendRequest(userId, friendEmail)
+            setSendRequest(friendRequest);
+        } catch (err) {
+            setSendRequestError("Failed to send friend request.");
+        } finally {
+            setSendRequestLoading(false);
+        }
+    }
 
     const FriendCard = ({ friend }: { friend: Friends }) => (
             <div className="flex items-center justify-between">
@@ -222,9 +243,25 @@ export const FriendsCard = ({ userId }: FriendsCardProps) => {
                 );
             case "Find Friends":
                 return (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                        <Search className="w-12 h-12 mb-4" />
-                        <p>Search for friends feature coming soon</p>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold">Find Friends</h2>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <Input
+                                type="email"
+                                placeholder="Enter email"
+                                className="w-full p-2 border border-gray-300 rounded-lg text-lg"
+                                value={friendEmail}
+                                onChange={(e) => setFriendEmail(e.target.value)}
+                            />
+                            <Button
+                                onClick={sendFriendRequest}
+                                disabled={sendRequestLoading}
+                            >
+                                Send Request
+                            </Button>
+                        </div>
                     </div>
                 );
             default:
