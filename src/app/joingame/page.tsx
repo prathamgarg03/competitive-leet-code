@@ -149,6 +149,28 @@ import { nanoid } from "nanoid";
 import { Realtime } from "ably";
 import { getAblyTokenRequest } from "@/actions/ably-token";
 
+function createConnection() {
+    const client = new Realtime({
+        authCallback: async (tokenParams, callback) => {
+            try {
+                const token = await getAblyTokenRequest();
+                console.log("Generated token:", token);
+                callback(null, token);
+            } catch (err) {
+                console.error("Error generating token:", err);
+                callback(err, null);
+            }
+        },
+
+    });
+
+    client.connection.on("connected", () => {
+        console.log("Connected to Ably!");
+    });
+
+    return client;
+}
+
 export default function JoinGame() {
     const [lobbyCode, setLobbyCode] = useState("");
     const [ablyClient, setAblyClient] = useState<Realtime | null>(null);
@@ -165,24 +187,8 @@ export default function JoinGame() {
 
         try {
             // Initialize Ably Realtime connection using Token Authentication
-            const client = new Realtime({
-              authCallback: async (tokenParams, callback) => {
-                try {
-                    const token = await getAblyTokenRequest();
-                    console.log("Generated token:", token);
-                    callback(null, token);
-                } catch (err) {
-                    console.error("Error generating token:", err);
-                    callback(err, null);
-                }
-            },
-            
-            });
 
-            client.connection.on("connected", () => {
-                console.log("Connected to Ably!");
-            });
-
+            const client = createConnection();
             // Attach to a channel using the lobby code
             const gameChannel = client.channels.get(`game-${newLobbyCode}`);
 
@@ -198,6 +204,23 @@ export default function JoinGame() {
         }
     };
 
+    const join = async (lobbyCodeToJoin:string) => {
+        try {
+            const client = createConnection();
+            const gameChannel = client.channels.get(`game-${lobbyCodeToJoin}`);
+
+            gameChannel.subscribe("message", (msg) => {
+                console.log("Received message:", msg.data);
+            });
+
+            setAblyClient(client);
+            setChannel(gameChannel);
+            console.log(`Lobby Joined: ${lobbyCodeToJoin}`);
+        } catch (error) {
+            console.error("Error connecting to Ably:", error);
+        }
+    };
+
     return (
         <div>
             <h2>Join Game</h2>
@@ -207,7 +230,7 @@ export default function JoinGame() {
                 value={lobbyCode}
                 onChange={(e) => setLobbyCode(e.target.value)}
             />
-            <button onClick={() => console.log(`Joining game: ${lobbyCode}`)}>Join</button>
+            <button onClick={join(lobbyCode)}>Join</button>
             <button onClick={createGame}>Create Game</button>
         </div>
     );
