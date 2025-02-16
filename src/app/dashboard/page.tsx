@@ -1,124 +1,61 @@
 'use client'
 
-import {QuizListPage} from "@/components/Quizes";
-import {GetFriendRequestsFromId, GetFriendsFromId} from "@/lib/friends";
-import {useUser} from "@clerk/nextjs";
-import {useState} from "react";
-import {Friends} from "@/types";
 import {Button} from "@/components/ui/button";
-import {AcceptFriendRequest, SendFriendRequest} from "@/actions/friend-request";
-import {Input} from "@/components/ui/input";
+import {useEffect, useState} from "react";
+import {FriendsCard} from "@/components/friends-card";
+import {useUser} from "@clerk/nextjs";
 
 export default function DashboardPage() {
-    const [friends, setFriends] = useState<Friends []>([])
-    const [receiver, setReceiver] = useState<string>("")
-    const [friendRequest, setFriendRequest] = useState<Friends []>()
+    const [quizzes, setQuizzes] = useState<{ id: string, title: string }[]>([]);
+    const [selectedQuizId, setSelectedQuizId] = useState<string>("");
+    const [quizSelected, setQuizSelected] = useState<boolean>(false);
+    const {user} = useUser();
 
-    const {user} = useUser()
-    const getFriends = async () => {
-        console.log("Hello World")
-
-        const friends = await GetFriendsFromId(user?.id || "")
-
-        if(friends) {
-            setFriends(friends)
-        } else {
-            setFriends([])
-        }
-    }
-
-    const getFriendRequests = async () => {
-        const friendRequests = await GetFriendRequestsFromId(user?.id || "")
-        if(friendRequests) {
-            setFriendRequest(friendRequests)
-        } else {
-            setFriendRequest([])
-        }
-    }
-
-
-    const sendFriendRequest = async () => {
-        if (!user?.id || !receiver) {
-            alert("Sender or receiver is missing");
-            return;
-        }
-
-        try {
-            const friendRequest = await SendFriendRequest(user.id, receiver);
-            if (friendRequest) {
-                alert("Friend request sent");
-            } else {
-                alert("Failed to send friend request");
-            }
-        } catch (error) {
-            console.error("Failed to send friend request:", error);
-            alert("An error occurred while sending friend request");
-        }
-    };
-
-
-    const acceptRequest = (id: string) => async () => {
-        if (!user?.id) {
-            alert("User ID is missing");
-            return;
-        }
-
-        try {
-            const friendRequest = await AcceptFriendRequest(id, user.id);
-            if (friendRequest) {
-                alert("Friend request accepted");
-            } else {
-                alert("Failed to accept friend request");
-            }
-        } catch (error) {
-            console.error("Failed to accept friend request:", error);
-            alert("An error occurred while accepting friend request");
-        }
-    };
-
-
-
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            const fetchedQuizzes = [
+                { id: "quiz1", title: "Math Quiz" },
+                { id: "quiz2", title: "Science Quiz" },
+                { id: "quiz3", title: "History Quiz" }
+            ];
+            setQuizzes(fetchedQuizzes);
+        };
+        fetchQuizzes();
+    }, []);
 
     return (
-        <div>
-            Dashboard Page
+        <div className="flex flex-row">
+            <div className="my-auto">
+                <div className="left-4 bg-gray-200 p-6 rounded-lg shadow-lg w-80 h-80 flex flex-col items-center">
+                    <p className="text-lg text-gray-600 mb-4 font-semibold">Choose a Quiz:</p>
+                    <select
+                        className="w-full p-3 text-black bg-white border border-gray-300 rounded-lg text-lg"
+                        value={selectedQuizId}
+                        onChange={(e) => {
+                            setSelectedQuizId(e.target.value);
+                            setQuizSelected(!!e.target.value);
+                        }}
+                    >
+                        <option value="">Select a quiz</option>
+                        {quizzes.map((quiz) => (
+                            <option key={quiz.id} value={quiz.id}>{quiz.title}</option>
+                        ))}
+                    </select>
+                    <Button
+                        className="mt-4 w-full p-3 bg-blue-600 text-white rounded-lg disabled:bg-gray-400"
+                        disabled={!quizSelected}
+                    >
+                        Start Playing
+                    </Button>
+                </div>
+            </div>
 
-            <Button onClick={getFriends}>Get Friends</Button>
-            {friends.map(friend => {
-                    return (
-                        <div key={friend.id}>
-                            {friend.username}
-                        </div>
-                    )
-                }
-            )}
 
-            <Button onClick={getFriendRequests}>Get Friend Requests</Button>
-            {friendRequest?.map(friend => {
-                    return (
-                        <div key={friend.id}>
-                            {friend.username}
-                            <Button
-                                onClick={acceptRequest(friend.id)}
-                            >
-                                Accept Request
-                            </Button>
-                        </div>
-                    )
-                }
-            )}
-
-            <Input
-                type="email"
-                value={receiver}
-                onChange={(e) => setReceiver(e.target.value)}
-                placeholder="Enter reciever email"
-                required
-            >
-            </Input>
-            <Button onClick={sendFriendRequest}>Send Friend Request</Button>
-
-            <QuizListPage/>
+            <div>
+                <FriendsCard
+                    userId = {user?.id || ""}
+                />
+            </div>
         </div>
-    );
+    )
 }
