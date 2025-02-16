@@ -161,7 +161,6 @@ function createConnection() {
                 callback(err, null);
             }
         },
-
     });
 
     client.connection.on("connected", () => {
@@ -187,7 +186,6 @@ export default function JoinGame() {
 
         try {
             // Initialize Ably Realtime connection using Token Authentication
-
             const client = createConnection();
             // Attach to a channel using the lobby code
             const gameChannel = client.channels.get(`game-${newLobbyCode}`);
@@ -204,20 +202,21 @@ export default function JoinGame() {
         }
     };
 
-    const join = async (lobbyCodeToJoin:string) => {
-        try {
-            const client = createConnection();
-            const gameChannel = client.channels.get(`game-${lobbyCodeToJoin}`);
+    const closeGame = () => {
+        if (ablyClient) {
+            ablyClient.close();
+            console.log("Closing Ably!");
+        } else {
+            console.log("No active game to close");
+        }
+    };
 
-            gameChannel.subscribe("message", (msg) => {
-                console.log("Received message:", msg.data);
-            });
-
-            setAblyClient(client);
-            setChannel(gameChannel);
-            console.log(`Lobby Joined: ${lobbyCodeToJoin}`);
-        } catch (error) {
-            console.error("Error connecting to Ably:", error);
+    const join = async () => {
+        if (lobbyCode.trim()) {
+            console.log("Joining game with code:", lobbyCode);
+            // Add code to join the game here (e.g., using Ably channel)
+        } else {
+            alert("Please enter a valid lobby code.");
         }
     };
 
@@ -230,8 +229,9 @@ export default function JoinGame() {
                 value={lobbyCode}
                 onChange={(e) => setLobbyCode(e.target.value)}
             />
-            <button onClick={join(lobbyCode)}>Join</button>
+            <button onClick={join}>Join</button>
             <button onClick={createGame}>Create Game</button>
+            <button onClick={closeGame}> Close Game </button>
         </div>
     );
 }
