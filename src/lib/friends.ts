@@ -3,9 +3,17 @@ import {Friends} from "@/types";
 
 export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
     try {
+        const user = await db.user.findUnique({
+            where: {
+                clerkId: id
+            }
+        })
+
+        const userId = user?.id
+
         const sentFriends = await db.friendRequest.findMany({
             where: {
-                senderId: id,
+                senderId: userId,
                 status: 'ACCEPTED'
             },
             select: {
@@ -20,7 +28,7 @@ export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
 
         const receivedFriends = await db.friendRequest.findMany({
             where: {
-                receiverId: id,
+                receiverId: userId,
                 status: 'ACCEPTED'
             },
             select: {
@@ -49,4 +57,36 @@ export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
         console.error("Error getting friends:", error)
         throw error
     }
+}
+
+export const GetFriendRequestsFromId = async(id: string): Promise<Friends []> => {
+    const user = await db.user.findUnique({
+        where: {
+            clerkId: id
+        }
+    })
+
+    const userId = user?.id
+
+    const friendRequests = await db.friendRequest.findMany({
+        where: {
+            receiverId: userId,
+            status: 'PENDING'
+        },
+        select: {
+            sender: {
+                select: {
+                    id: true,
+                    username: true
+                }
+            }
+        }
+    })
+
+    const requests: Friends[] = friendRequests.map(req => ({
+        id: req.sender.id,
+        username: req.sender.username || ""
+    }))
+
+    return requests
 }
