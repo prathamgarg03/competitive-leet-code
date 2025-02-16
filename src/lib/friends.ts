@@ -5,53 +5,57 @@ import {Friends} from "@/types";
 
 export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
     try {
-        const user = await db.user.findUnique({
+        const sentFriends = await db.user.findUnique({
             where: {
                 clerkId: id
-            }
-        })
-
-        const userId = user?.id
-
-        const sentFriends = await db.friendRequest.findMany({
-            where: {
-                senderId: userId,
-                status: 'ACCEPTED'
             },
             select: {
-                sender: {
+                sentRequests: {
+                    where: {
+                        status: 'ACCEPTED'
+                    },
                     select: {
-                        id: true,
-                        username: true
+                        receiver: {
+                            select: {
+                                id: true,
+                                username: true
+                            }
+                        }
                     }
                 }
             }
         })
 
-        const receivedFriends = await db.friendRequest.findMany({
+        const receivedFriends = await db.user.findUnique({
             where: {
-                receiverId: userId,
-                status: 'ACCEPTED'
+                clerkId: id
             },
             select: {
-                receiver: {
+                recvRequests: {
+                    where: {
+                        status: 'ACCEPTED'
+                    },
                     select: {
-                        id: true,
-                        username: true
+                        sender: {
+                            select: {
+                                id: true,
+                                username: true
+                            }
+                        }
                     }
                 }
             }
         })
 
         const friends: Friends[] = [
-            ...sentFriends.map(req => ({
-                id: req.sender.id,
-                username: req.sender.username || ""
-            })),
-            ...receivedFriends.map(req => ({
+            ...sentFriends?.sentRequests.map(req => ({
                 id: req.receiver.id,
                 username: req.receiver.username || ""
-            })),
+            })) || [],
+            ...receivedFriends?.recvRequests.map(req => ({
+                id: req.sender.id,
+                username: req.sender.username || ""
+            })) || []
         ]
 
         return friends

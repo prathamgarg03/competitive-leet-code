@@ -25,7 +25,6 @@ export async function SendFriendRequest(senderClerkId: string, receiverEmail: st
 
         if (!receiver) {
             console.log("No user found for email:", receiverEmail); // Debugging
-            // throw new Error(`User with email ${receiverEmail} not found`);
         }
 
         const receiverId = receiver?.id || "";
@@ -45,41 +44,32 @@ export async function SendFriendRequest(senderClerkId: string, receiverEmail: st
     }
 }
 
-export async function AcceptFriendRequest(senderClerkId: string, receiverClerkId: string) {
+export async function AcceptFriendRequest(senderId: string, receiverClerkId: string) {
     try {
-        const sender = await db.user.findUnique({
-            where: {
-                clerkId: senderClerkId,
-            },
-        })
-
         const receiver = await db.user.findUnique({
             where: {
                 clerkId: receiverClerkId,
-            },
-        });
+            }
+        })
 
-        if (!sender) {
-            console.log("No sender found for clerkId:", senderClerkId);
-        }
-        if(!receiver) {
-            console.log("No receiver found for clerkId:", receiverClerkId);
-        }
-
-        const senderId = sender?.id || "";
         const receiverId = receiver?.id || "";
 
         const friendRequest = await db.friendRequest.updateMany({
             where: {
                 senderId,
                 receiverId,
+                status: `PENDING`
             },
             data: {
                 status: 'ACCEPTED',
-            },
+                updatedAt: new Date()
+            }
         });
 
-        console.log("Friend request updated:", friendRequest); // Debugging
+        if (friendRequest.count === 0) {
+            throw new Error("No pending friend request found between these users");
+        }
+
         return friendRequest;
     } catch (error) {
         console.error("Error accepting friend request:", error);

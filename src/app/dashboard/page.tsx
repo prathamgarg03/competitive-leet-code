@@ -64,7 +64,7 @@ export default function DashboardPage() {
         }
 
         try {
-            const friendRequest = await AcceptFriendRequest(user.id, id);
+            const friendRequest = await AcceptFriendRequest(id, user.id);
             if (friendRequest) {
                 alert("Friend request accepted");
             } else {
@@ -98,8 +98,6 @@ export default function DashboardPage() {
                     return (
                         <div key={friend.id}>
                             {friend.username}
-
-
                             <Button
                                 onClick={acceptRequest(friend.id)}
                             >
