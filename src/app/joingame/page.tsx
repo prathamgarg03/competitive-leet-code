@@ -164,18 +164,18 @@ export default function JoinGame() {
         console.log("New Game Created with Lobby Code:", newLobbyCode);
 
         try {
-            // Fetch Ably TokenRequest from the Server Action
-            const tokenRequest = await getAblyTokenRequest();
-
             // Initialize Ably Realtime connection using Token Authentication
             const client = new Realtime({
                 authCallback: async (tokenParams, callback) => {
+                    let token;
                     try {
-                        const token = await getAblyTokenRequest();
+                        token = await getAblyTokenRequest();
                         callback(null, token);
                     } catch (err) {
                         callback(err as Error, null);
+                        return;
                     }
+                    callback(null,token);
                 },
             });
 

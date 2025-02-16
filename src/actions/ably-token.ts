@@ -10,13 +10,6 @@ export async function getAblyTokenRequest(): Promise<Ably.Types.TokenRequest> {
 
     const client = new Ably.Rest(process.env.ABLY_API_KEY);
 
-    return new Promise((resolve, reject) => {
-        client.auth.createTokenRequest({}, (err: Error | null, tokenRequest?: Ably.Types.TokenRequest) => {
-            if (err) {
-                reject(err);
-            } else if (tokenRequest) {
-                resolve(tokenRequest);
-            }
-        });
-    });
+    const tokenRequest = await client.auth.createTokenRequest({ clientId: 'client@example.com' });
+    return tokenRequest;
 }
