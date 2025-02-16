@@ -1,18 +1,20 @@
 "use server";
+
 import Ably from "ably";
 
-export function generateLobbyCode() {
-    return nanoid(8);
-}
+// Server Action: Generate an Ably TokenRequest
+export async function getAblyTokenRequest(): Promise<Ably.Types.TokenRequest> {
+    if (!process.env.ABLY_API_KEY) {
+        throw new Error("ABLY_API_KEY is missing in environment variables.");
+    }
 
-export async function getAblyToken() {
     const client = new Ably.Rest(process.env.ABLY_API_KEY);
-    
+
     return new Promise((resolve, reject) => {
-        client.auth.createTokenRequest({}, (err, tokenRequest) => {
+        client.auth.createTokenRequest({}, (err: Error | null, tokenRequest?: Ably.Types.TokenRequest) => {
             if (err) {
                 reject(err);
-            } else {
+            } else if (tokenRequest) {
                 resolve(tokenRequest);
             }
         });
