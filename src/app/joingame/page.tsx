@@ -166,17 +166,17 @@ export default function JoinGame() {
         try {
             // Initialize Ably Realtime connection using Token Authentication
             const client = new Realtime({
-                authCallback: async (tokenParams, callback) => {
-                    let token;
-                    try {
-                        token = await getAblyTokenRequest();
-                        callback(null, token);
-                    } catch (err) {
-                        callback(err as Error, null);
-                        return;
-                    }
-                    callback(null,token);
-                },
+              authCallback: async (tokenParams, callback) => {
+                try {
+                    const token = await getAblyTokenRequest();
+                    console.log("Generated token:", token);
+                    callback(null, token);
+                } catch (err) {
+                    console.error("Error generating token:", err);
+                    callback(err, null);
+                }
+            },
+            
             });
 
             client.connection.on("connected", () => {
