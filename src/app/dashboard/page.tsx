@@ -64,7 +64,14 @@ export default function DashboardPage() {
             )}
 
             <Button onClick={getFriendRequests}>Get Friend Requests</Button>
-
+            {friendRequest?.map(friend => {
+                    return (
+                        <div key={friend.id}>
+                            {friend.username}
+                        </div>
+                    )
+                }
+            )}
 
             <Input
                 type="text"
