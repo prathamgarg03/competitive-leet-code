@@ -1,6 +1,6 @@
 "use client"
 
-import {useEffect, useState} from "react"
+import { useState } from "react"
 import { Friends } from "@/types"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { FriendshipSidebar } from "@/components/Friendship-Sidebar"
@@ -20,17 +20,19 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {FriendsList} from "@/components/Friends-List";
-import {RequestsList} from "@/components/Requests-List";
-import {AddFriends} from "@/components/Add-Friends";
+import { FriendsList } from "@/components/Friends-List"
+import { RequestsList } from "@/components/Requests-List"
+import { AddFriends } from "@/components/Add-Friends"
 
 interface FriendshipDialogProps {
     friendsList: Friends[]
     requestsList: Friends[]
+    onUpdate: () => void
 }
 
-export default function FriendshipDialog({ friendsList, requestsList }: FriendshipDialogProps) {
+export default function FriendshipDialog({ friendsList, requestsList, onUpdate }: FriendshipDialogProps) {
     const [menu, setMenu] = useState("My Friends")
+
     const onClick = (menuTitle: string) => {
         setMenu(menuTitle)
     }
@@ -43,7 +45,7 @@ export default function FriendshipDialog({ friendsList, requestsList }: Friendsh
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                   Friends
+                                    Friends
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block"/>
                                 <BreadcrumbItem>
@@ -57,11 +59,19 @@ export default function FriendshipDialog({ friendsList, requestsList }: Friendsh
                     {(() => {
                         switch (menu) {
                             case "My Friends":
-                                return (renderFriendsList())
+                                return <FriendsList
+                                    friends={friendsList}
+                                    onUpdate={onUpdate}
+                                />
                             case "Friend Requests":
-                                return (renderRequestsList())
+                                return <RequestsList
+                                    requests={requestsList}
+                                    onUpdate={onUpdate}
+                                />
                             case "Find Friends":
-                                return (renderAddFriends())
+                                return <AddFriends
+                                    onUpdate={onUpdate}
+                                />
                             case "Settings":
                                 return <div>{menu} List</div>
                             default:
@@ -70,31 +80,6 @@ export default function FriendshipDialog({ friendsList, requestsList }: Friendsh
                     })()}
                 </div>
             </div>
-        )
-    }
-
-    const renderFriendsList = () => {
-        return (
-            <FriendsList friends={friendsList} />
-        )
-    }
-    useEffect(() => {
-        renderFriendsList()
-    }, [friendsList])
-
-    const renderRequestsList = () => {
-        return (
-            <RequestsList requests={requestsList} />
-        )
-    }
-
-    useEffect(() => {
-        renderRequestsList()
-    }, [requestsList])
-
-    const renderAddFriends = () => {
-        return (
-            <AddFriends />
         )
     }
 

@@ -32,7 +32,6 @@ export function FriendshipSidebar({ onClick }: FriendshipSidebarProps) {
                     <SidebarMenu>
                         {menuItems.map((item, index) => (
                             <SidebarMenuItem
-                                // className="my-1
                                 key={index}
                             >
                                 <SidebarMenuButton

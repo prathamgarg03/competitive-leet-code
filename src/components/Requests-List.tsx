@@ -2,12 +2,30 @@ import { Friends } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import {useState} from "react";
+import {useUser} from "@clerk/nextjs";
+import {AcceptFriendRequest} from "@/actions/friend-request";
 
 interface RequestsListProps {
-    requests: Friends[];
+    requests: Friends[]
+    onUpdate: () => void
 }
 
-export function RequestsList({ requests }: RequestsListProps) {
+export function RequestsList({ requests, onUpdate }: RequestsListProps) {
+    const [processingRequest, setProcessingRequest] = useState<string>("")
+    const {user} = useUser()
+    const acceptRequest = async (requestId: string) => {
+        try {
+            setProcessingRequest(requestId)
+            const request = await AcceptFriendRequest(requestId, user?.id || "")
+            onUpdate()
+        } catch (error) {
+            console.error('Failed to process request:', error)
+        } finally {
+            setProcessingRequest("")
+        }
+    }
+
     return (
         <div className="flex flex-col justify-center items-center">
             <div className="w-[400px]">
@@ -18,7 +36,7 @@ export function RequestsList({ requests }: RequestsListProps) {
 
                 <div>
                     {requests.length === 0 ? (
-                        <div className="text-gray-500 text-lg">No friend requests</div>
+                        <div className="text-center text-gray-500 text-lg">No friend requests</div>
                     ) : (
                         <div className="flex flex-col gap-1 mt-3">
                             {requests.map((request, index) => (
@@ -29,7 +47,12 @@ export function RequestsList({ requests }: RequestsListProps) {
                                 <span className="font-semibold text-gray-700 text-xl">
                                     {`${index + 1}. ${request.username}`}
                                 </span>
-                                    <Button variant="ghost" className="text-green-600 hover:text-green-800">
+                                    <Button
+                                        variant="ghost"
+                                        className="text-green-600 hover:text-green-800"
+                                        disabled={processingRequest === request.id}
+                                        onClick={() => {acceptRequest(request.id)}}
+                                    >
                                         <Check className="w-5 h-5"/>
                                     </Button>
                                 </Card>

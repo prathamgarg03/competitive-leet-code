@@ -1,7 +1,7 @@
 'use client'
 
 import {Button} from "@/components/ui/button"
-import {useEffect, useState} from "react"
+import {useCallback, useEffect, useState} from "react"
 import {useUser} from "@clerk/nextjs"
 import {Friends} from "@/types";
 import {GetFriendRequestsFromId, GetFriendsFromId} from "@/lib/friends";
@@ -14,6 +14,7 @@ export default function DashboardPage() {
 
     const [friends, setFriends] = useState<Friends[]>([])
     const [requests, setRequests] = useState<Friends[]>([])
+    const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now())
 
     const {user} = useUser()
     const userId = user?.id || ""
@@ -30,31 +31,40 @@ export default function DashboardPage() {
         fetchQuizzes()
     }, [])
 
-    useEffect(() => {
-        getFriends()
-    }, [friends])
-
-    const getFriends = async () => {
+    const getFriends = useCallback(async () => {
         try {
-            const fetchedFriends = await GetFriendsFromId(userId);
-            setFriends(fetchedFriends);
+            const fetchedFriends = await GetFriendsFromId(userId)
+            setFriends(fetchedFriends)
         } catch (err) {
-            console.error(err);
+            console.error(err)
         }
-    }
+    }, [userId])
 
-    useEffect(() => {
-        getRequests()
-    }, [requests])
-
-    const getRequests = async () => {
+    const getRequests = useCallback(async () => {
         try {
             const fetchedRequests = await GetFriendRequestsFromId(userId)
             setRequests(fetchedRequests)
         } catch (err) {
             console.error(err)
         }
-    }
+    }, [userId])
+
+    const refreshData = useCallback(() => {
+        setLastUpdateTime(Date.now())
+    }, [])
+
+    useEffect(() => {
+        getFriends()
+        getRequests()
+
+        const intervalId = setInterval(() => {
+            getFriends()
+            getRequests()
+        }, 30000)
+
+        return () => clearInterval(intervalId)
+    }, [getFriends, getRequests, lastUpdateTime])
+
 
     return (
         <div className="">
@@ -87,6 +97,7 @@ export default function DashboardPage() {
                 <FriendshipDialog
                     friendsList={friends}
                     requestsList={requests}
+                    onUpdate={refreshData}
                 />
             </div>
         </div>

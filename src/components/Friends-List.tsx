@@ -6,9 +6,10 @@ import {Plus} from "lucide-react";
 
 interface FriendsListProps {
     friends: Friends[]
+    onUpdate: () => void
 }
 
-export function FriendsList({ friends }: FriendsListProps) {
+export function FriendsList({ friends, onUpdate }: FriendsListProps) {
     return (
         <div className="flex justify-center items-center">
             <Tabs defaultValue="online" className="w-[400px]">
