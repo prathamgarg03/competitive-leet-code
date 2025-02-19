@@ -2,7 +2,6 @@
 
 import {Button} from "@/components/ui/button"
 import {useEffect, useState} from "react"
-import {FriendsCard} from "@/components/friends-card"
 import {useUser} from "@clerk/nextjs"
 import {Friends} from "@/types";
 import {GetFriendRequestsFromId, GetFriendsFromId} from "@/lib/friends";
@@ -84,33 +83,10 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <h1>Friends List</h1>
-            {friends.map((friend) => {
-                return (
-                    <li key={friend.id}>
-                        <ul>
-                            {friend.username}
-                        </ul>
-                    </li>
-                )
-            })}
-
-            <h1>Requests List</h1>
-            {requests.map((request) => {
-                return (
-                    <li key={request.id}>
-                        <ul>
-                            {request.username}
-                        </ul>
-                    </li>
-
-                )
-            })}
-
-
             <div>
                 <FriendshipDialog
                     friendsList={friends}
+                    requestsList={requests}
                 />
             </div>
         </div>

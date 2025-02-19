@@ -14,7 +14,12 @@ const menuItems = [
     { title: "Settings", icon: <UserCog className="w-5 h-5"/>}
 ]
 
-export function FriendshipSidebar() {
+interface FriendshipSidebarProps {
+    onClick: (menuTitle: string) => void
+}
+
+export function FriendshipSidebar({ onClick }: FriendshipSidebarProps) {
+
     return (
         <Sidebar
             className="hidden md:flex"
@@ -33,6 +38,7 @@ export function FriendshipSidebar() {
                                 <SidebarMenuButton
                                     size="lg"
                                     className="text-lg"
+                                    onClick ={() => onClick(item.title)}
                                 >
                                     {item.icon}
                                     {item.title}
