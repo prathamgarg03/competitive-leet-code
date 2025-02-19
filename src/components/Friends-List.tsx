@@ -2,7 +2,7 @@ import { Friends } from "@/types"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {Card} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
-import {Plus} from "lucide-react";
+import {Plus, X} from "lucide-react";
 
 interface FriendsListProps {
     friends: Friends[]
@@ -10,6 +10,12 @@ interface FriendsListProps {
 }
 
 export function FriendsList({ friends, onUpdate }: FriendsListProps) {
+
+    const removeFriend = async (friendId: string) => {
+        console.log('Removing friend:', friendId)
+        onUpdate()
+    }
+
     return (
         <div className="flex justify-center items-center">
             <Tabs defaultValue="online" className="w-[400px]">
@@ -28,9 +34,21 @@ export function FriendsList({ friends, onUpdate }: FriendsListProps) {
                                     {`${index + 1}. `}
                                     {friend.username}
                                 </span>
-                                <Button variant="ghost" className="text-green-600 hover:text-green-800">
-                                    <Plus className="w-5 h-5" />
-                                </Button>
+                                <div>
+                                    <Button variant="ghost" className="text-green-600 hover:text-green-800">
+                                        <Plus className="w-5 h-5" />
+                                        Invite
+                                    </Button>
+
+                                    <Button 
+                                        variant="ghost"
+                                        className="text-red-600 hover:text-red-800"
+                                        onClick={() => removeFriend(friend.id)}
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </Button>
+                                </div>
+
                             </Card>
                         ))}
                     </div>

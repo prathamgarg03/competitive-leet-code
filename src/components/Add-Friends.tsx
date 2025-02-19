@@ -25,10 +25,12 @@ export function AddFriends ({ onUpdate }: AddFriendsProps) {
         try {
             setIsLoading(true)
             const request = await SendFriendRequest(user?.id || "", friendEmail)
+            console.log(request)
             setSuccessMessage("Friend request sent")
             setFriendEmail("")
             onUpdate()
         } catch (e) {
+            console.error(e)
             setErrorMessage("Failed to send friend request")
         } finally {
             setIsLoading(false)

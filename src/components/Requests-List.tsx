@@ -5,6 +5,8 @@ import { Check } from "lucide-react";
 import {useState} from "react";
 import {useUser} from "@clerk/nextjs";
 import {AcceptFriendRequest} from "@/actions/friend-request";
+import {SuccessMessage} from "@/components/Success-Message";
+import {ErrorMessage} from "@/components/Error-Message";
 
 interface RequestsListProps {
     requests: Friends[]
@@ -14,13 +16,20 @@ interface RequestsListProps {
 export function RequestsList({ requests, onUpdate }: RequestsListProps) {
     const [processingRequest, setProcessingRequest] = useState<string>("")
     const {user} = useUser()
+
+    const [successMessage, setSuccessMessage] = useState("")
+    const [errorMessage, setErrorMessage] = useState("")
+
     const acceptRequest = async (requestId: string) => {
         try {
             setProcessingRequest(requestId)
             const request = await AcceptFriendRequest(requestId, user?.id || "")
+            console.log(request)
+            setSuccessMessage("Friend request accepted")
             onUpdate()
         } catch (error) {
             console.error('Failed to process request:', error)
+            setErrorMessage("Failed to accept friend request")
         } finally {
             setProcessingRequest("")
         }
@@ -57,6 +66,8 @@ export function RequestsList({ requests, onUpdate }: RequestsListProps) {
                                     </Button>
                                 </Card>
                             ))}
+                            <SuccessMessage message={successMessage}/>
+                            <ErrorMessage message={errorMessage}/>
                         </div>
                     )}
                 </div>
