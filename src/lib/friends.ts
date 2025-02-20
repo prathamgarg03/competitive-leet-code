@@ -18,7 +18,8 @@ export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
                         receiver: {
                             select: {
                                 id: true,
-                                username: true
+                                username: true,
+                                clerkId: true
                             }
                         }
                     }
@@ -39,7 +40,8 @@ export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
                         sender: {
                             select: {
                                 id: true,
-                                username: true
+                                username: true,
+                                clerkId: true
                             }
                         }
                     }
@@ -50,11 +52,13 @@ export const GetFriendsFromId = async (id: string): Promise<Friends []> => {
         const friends: Friends[] = [
             ...sentFriends?.sentRequests.map(req => ({
                 id: req.receiver.id,
-                username: req.receiver.username || ""
+                username: req.receiver.username || "",
+                clerkId: req.receiver.clerkId || ""
             })) || [],
             ...receivedFriends?.recvRequests.map(req => ({
                 id: req.sender.id,
-                username: req.sender.username || ""
+                username: req.sender.username || "",
+                clerkId: req.sender.clerkId || ""
             })) || []
         ]
 
@@ -83,7 +87,8 @@ export const GetFriendRequestsFromId = async(id: string): Promise<Friends []> =>
             sender: {
                 select: {
                     id: true,
-                    username: true
+                    username: true,
+                    clerkId: true
                 }
             }
         }
@@ -91,7 +96,8 @@ export const GetFriendRequestsFromId = async(id: string): Promise<Friends []> =>
 
     const requests: Friends[] = friendRequests.map(req => ({
         id: req.sender.id,
-        username: req.sender.username || ""
+        username: req.sender.username || "",
+        clerkId: req.sender.clerkId || ""
     }))
 
     return requests

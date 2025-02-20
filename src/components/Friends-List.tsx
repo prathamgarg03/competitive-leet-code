@@ -1,8 +1,15 @@
+"use client"
+
 import { Friends } from "@/types"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {Card} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Plus, X} from "lucide-react";
+import {InviteFriend} from "@/actions/invite-friend";
+import {useUser} from "@clerk/nextjs";
+import {useState} from "react";
+import {SuccessMessage} from "@/components/Success-Message";
+import {ErrorMessage} from "@/components/Error-Message";
 
 interface FriendsListProps {
     friends: Friends[]
@@ -10,10 +17,25 @@ interface FriendsListProps {
 }
 
 export function FriendsList({ friends, onUpdate }: FriendsListProps) {
+    const {user} = useUser()
+
+    const [successMessage, setSuccessMessage] = useState("")
+    const [errorMessage, setErrorMessage] = useState("")
 
     const removeFriend = async (friendId: string) => {
         console.log('Removing friend:', friendId)
         onUpdate()
+    }
+
+    const inviteFriend = async (friendId: string) => {
+        console.log('Inviting friend:', friendId)
+
+        const response = await InviteFriend(user?.id || "", friendId)
+        if(response.success) {
+            setSuccessMessage("Friend invited successfully!")
+        } else {
+            setErrorMessage(response.error!)
+        }
     }
 
     return (
@@ -35,12 +57,16 @@ export function FriendsList({ friends, onUpdate }: FriendsListProps) {
                                     {friend.username}
                                 </span>
                                 <div>
-                                    <Button variant="ghost" className="text-green-600 hover:text-green-800">
+                                    <Button
+                                        variant="ghost"
+                                        className="text-green-600 hover:text-green-800"
+                                        onClick={() => inviteFriend(friend.id)}
+                                    >
                                         <Plus className="w-5 h-5" />
                                         Invite
                                     </Button>
 
-                                    <Button 
+                                    <Button
                                         variant="ghost"
                                         className="text-red-600 hover:text-red-800"
                                         onClick={() => removeFriend(friend.id)}
@@ -48,9 +74,10 @@ export function FriendsList({ friends, onUpdate }: FriendsListProps) {
                                         <X className="w-5 h-5" />
                                     </Button>
                                 </div>
-
                             </Card>
                         ))}
+                        <SuccessMessage message={successMessage} />
+                        <ErrorMessage message={errorMessage} />
                     </div>
                 </TabsContent>
                 <TabsContent value="recents">

@@ -6,6 +6,8 @@ import {useUser} from "@clerk/nextjs"
 import {Friends} from "@/types";
 import {GetFriendRequestsFromId, GetFriendsFromId} from "@/lib/friends";
 import FriendshipDialog from "@/components/Friendship-Dialog";
+import {pusherClient} from "@/lib/pusher";
+import {GetUidFromClerkId} from "@/lib/user";
 
 export default function DashboardPage() {
     const [quizzes, setQuizzes] = useState<{ id: string, title: string }[]>([])
@@ -18,6 +20,27 @@ export default function DashboardPage() {
 
     const {user} = useUser()
     const userId = user?.id || ""
+
+    const [loading, setLoading] = useState<boolean>(false)
+
+    const testPusher = async () => {
+        console.log('Testing pusher...')
+        const channel = pusherClient.subscribe(`private-user-${userId}`);
+
+        channel.bind('friend-invite', (data: any) => {
+            console.log(data);
+            alert(data.message);
+        });
+
+        setLoading(false)
+
+        return () => {
+            channel.unbind_all();
+            channel.unsubscribe();
+
+        };
+    }
+
 
     useEffect(() => {
         const fetchQuizzes = async () => {
@@ -92,6 +115,14 @@ export default function DashboardPage() {
                     </Button>
                 </div>
             </div>
+
+            <Button
+                variant="default"
+                onClick={testPusher}
+                disabled={loading}
+            >
+                Test Pusher
+            </Button>
 
             <div>
                 <FriendshipDialog
