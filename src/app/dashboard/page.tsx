@@ -91,6 +91,8 @@ export default function DashboardPage() {
         getFriends()
         getRequests()
 
+        //Fix Later
+
         const intervalId = setInterval(() => {
             getFriends()
             getRequests()
