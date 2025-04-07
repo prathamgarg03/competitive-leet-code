@@ -52,7 +52,11 @@ export default function DashboardPage() {
         if (!userId) return
 
         const interval = setInterval(async () => {
+
+            console.log("Polling ...")
             const messages = await pollMessages(userId)
+
+            console.log({messages})
 
             if (messages && messages.length > 0) {
                 for (const msg of messages) {
