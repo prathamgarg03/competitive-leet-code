@@ -1,53 +1,31 @@
 'use client'
 
-import {Button} from "@/components/ui/button"
-import {useCallback, useEffect, useState} from "react"
-import {useUser} from "@clerk/nextjs"
-import {Friends} from "@/types";
-import {GetFriendRequestsFromId, GetFriendsFromId} from "@/lib/friends";
-import FriendshipDialog from "@/components/Friendship-Dialog";
-import {pusherClient} from "@/lib/pusher";
-import {GetUidFromClerkId} from "@/lib/user";
+import { Button } from '@/components/ui/button'
+import { useCallback, useEffect, useState } from 'react'
+import { useUser } from '@clerk/nextjs'
+import { Friends } from '@/types'
+import { GetFriendRequestsFromId, GetFriendsFromId } from '@/lib/friends'
+import FriendshipDialog from '@/components/Friendship-Dialog'
+// import { establishConnection, subscribeToStatus } from '@/lib/sockets'
 
 export default function DashboardPage() {
-    const [quizzes, setQuizzes] = useState<{ id: string, title: string }[]>([])
-    const [selectedQuizId, setSelectedQuizId] = useState<string>("")
+    const [quizzes, setQuizzes] = useState<{ id: string; title: string }[]>([])
+    const [selectedQuizId, setSelectedQuizId] = useState<string>('')
     const [quizSelected, setQuizSelected] = useState<boolean>(false)
 
     const [friends, setFriends] = useState<Friends[]>([])
     const [requests, setRequests] = useState<Friends[]>([])
     const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now())
 
-    const {user} = useUser()
-    const userId = user?.id || ""
-
-    const [loading, setLoading] = useState<boolean>(false)
-
-    const testPusher = async () => {
-        console.log('Testing pusher...')
-        const channel = pusherClient.subscribe(`private-user-${userId}`);
-
-        channel.bind('friend-invite', (data: any) => {
-            console.log(data);
-            alert(data.message);
-        });
-
-        setLoading(false)
-
-        return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-
-        };
-    }
-
+    const { user } = useUser()
+    const userId = user?.id
 
     useEffect(() => {
         const fetchQuizzes = async () => {
             const fetchedQuizzes = [
-                { id: "quiz1", title: "Math Quiz" },
-                { id: "quiz2", title: "Science Quiz" },
-                { id: "quiz3", title: "History Quiz" }
+                { id: 'quiz1', title: 'Math Quiz' },
+                { id: 'quiz2', title: 'Science Quiz' },
+                { id: 'quiz3', title: 'History Quiz' },
             ]
             setQuizzes(fetchedQuizzes)
         }
@@ -56,7 +34,7 @@ export default function DashboardPage() {
 
     const getFriends = useCallback(async () => {
         try {
-            const fetchedFriends = await GetFriendsFromId(userId)
+            const fetchedFriends = await GetFriendsFromId(userId || '')
             setFriends(fetchedFriends)
         } catch (err) {
             console.error(err)
@@ -65,7 +43,7 @@ export default function DashboardPage() {
 
     const getRequests = useCallback(async () => {
         try {
-            const fetchedRequests = await GetFriendRequestsFromId(userId)
+            const fetchedRequests = await GetFriendRequestsFromId(userId || '')
             setRequests(fetchedRequests)
         } catch (err) {
             console.error(err)
@@ -87,7 +65,6 @@ export default function DashboardPage() {
 
         return () => clearInterval(intervalId)
     }, [getFriends, getRequests, lastUpdateTime])
-
 
     return (
         <div className="">
@@ -116,14 +93,6 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <Button
-                variant="default"
-                onClick={testPusher}
-                disabled={loading}
-            >
-                Test Pusher
-            </Button>
-
             <div>
                 <FriendshipDialog
                     friendsList={friends}
@@ -131,6 +100,17 @@ export default function DashboardPage() {
                     onUpdate={refreshData}
                 />
             </div>
+
+            <div>
+                {userId &&
+                    <h1 className="text-xl">User Id:{userId}</h1>
+                }
+            </div>
+
+            {/* <div>
+                {status}
+            </div> */}
+
         </div>
     )
 }

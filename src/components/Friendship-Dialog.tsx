@@ -23,11 +23,13 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { FriendsList } from "@/components/Friends-List"
 import { RequestsList } from "@/components/Requests-List"
 import { AddFriends } from "@/components/Add-Friends"
+// import {Socket} from "socket.io-client"
 
 interface FriendshipDialogProps {
     friendsList: Friends[]
     requestsList: Friends[]
     onUpdate: () => void
+    // socketRef: Socket | null
 }
 
 export default function FriendshipDialog({ friendsList, requestsList, onUpdate }: FriendshipDialogProps) {
@@ -62,6 +64,7 @@ export default function FriendshipDialog({ friendsList, requestsList, onUpdate }
                                 return <FriendsList
                                     friends={friendsList}
                                     onUpdate={onUpdate}
+                                    // socketRef={socketRef}
                                 />
                             case "Friend Requests":
                                 return <RequestsList

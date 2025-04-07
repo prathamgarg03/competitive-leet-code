@@ -19,16 +19,24 @@ enum FriendRequestStatus {
   REJECTED
 }
 
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
-  id           String          @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId      String          @unique
-  email        String          @unique
-  username     String?
-  quizzes      Quiz[]          @relation("UserQuizzes")
-  sentRequests FriendRequest[] @relation("SentFriendRequests")
-  recvRequests FriendRequest[] @relation("ReceivedFriendRequests")
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId         String          @unique
+  email           String          @unique
+  username        String?
+  quizzes         Quiz[]          @relation("UserQuizzes")
+  sentRequests    FriendRequest[] @relation("SentFriendRequests")
+  recvRequests    FriendRequest[] @relation("ReceivedFriendRequests")
+  sentInvitations Invitation[]    @relation("SentInvitations")
+  recvInvitations Invitation[]    @relation("ReceivedInvitations")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model FriendRequest {
@@ -42,6 +50,19 @@ model FriendRequest {
   updatedAt  DateTime            @updatedAt
 
   @@unique([senderId, receiverId])
+}
+
+model Invitation {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  invitationId String           @unique
+  senderId     String           @db.ObjectId
+  receiverId   String           @db.ObjectId
+  expiresAt    DateTime
+  status       InvitationStatus @default(PENDING)
+  sender       User             @relation("SentInvitations", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User             @relation("ReceivedInvitations", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 }
 
 model Quiz {
