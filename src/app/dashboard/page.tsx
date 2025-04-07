@@ -8,6 +8,7 @@ import { GetFriendRequestsFromId, GetFriendsFromId } from '@/lib/friends'
 import FriendshipDialog from '@/components/Friendship-Dialog'
 import { RegisterUser } from '@/actions/socket'
 import {pollMessages} from "@/actions/socket-message";
+import { GetUsernameFromClerkId } from '@/lib/user'
 
 export default function DashboardPage() {
     const [quizzes, setQuizzes] = useState<{ id: string; title: string }[]>([])
@@ -17,6 +18,9 @@ export default function DashboardPage() {
     const [friends, setFriends] = useState<Friends[]>([])
     const [requests, setRequests] = useState<Friends[]>([])
     const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now())
+
+    const [msg, setMsg] = useState("")
+    const [invUser, setInvUser] = useState("")
 
     const { user } = useUser()
     const userId = user?.id
@@ -61,7 +65,8 @@ export default function DashboardPage() {
             if (messages && messages.length > 0) {
                 for (const msg of messages) {
                     console.log(`🔔 [${msg.type}]`, msg.message)
-                    // You can do UI updates here
+                    
+                    setMsg(`Invitation received from: ${msg.message.from}`)
                 }
             }
         }, 3000)
@@ -149,6 +154,10 @@ export default function DashboardPage() {
             {/* <div>
                 {status}
             </div> */}
+
+            <div>
+                {msg}
+            </div>
 
         </div>
     )

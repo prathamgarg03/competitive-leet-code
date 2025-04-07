@@ -10,3 +10,13 @@ export const GetUidFromClerkId = async (clerkId: string): Promise<string> => {
     })
     return user?.id || ""
 }
+
+export const GetUsernameFromClerkId = async (clerkId: string): Promise<string> => {
+    const user = await db.user.findUnique({
+        where: {
+            clerkId: clerkId
+        }
+    })
+    return user?.username || ""
+}
+
