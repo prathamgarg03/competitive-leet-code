@@ -14,7 +14,7 @@ export default function Navbar() {
         </Link>
         <div className="flex items-center space-x-4">
           <SignedOut>
-            <SignInButton mode="modal">
+            <SignInButton>
               <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
                 Sign In
               </button>

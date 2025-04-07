@@ -6,7 +6,7 @@ import { useUser } from '@clerk/nextjs'
 import { Friends } from '@/types'
 import { GetFriendRequestsFromId, GetFriendsFromId } from '@/lib/friends'
 import FriendshipDialog from '@/components/Friendship-Dialog'
-// import { establishConnection, subscribeToStatus } from '@/lib/sockets'
+import { RegisterUser } from '@/actions/socket'
 
 export default function DashboardPage() {
     const [quizzes, setQuizzes] = useState<{ id: string; title: string }[]>([])
@@ -19,6 +19,21 @@ export default function DashboardPage() {
 
     const { user } = useUser()
     const userId = user?.id
+
+    useEffect(() => {
+        if (userId) {
+            const register = async () => {
+                try {
+                    const res = await RegisterUser(userId)
+                    console.log("User registered:", res)
+                } catch (err) {
+                    console.error("Error registering user:", err)
+                }
+            }
+    
+            register()
+        }
+    }, [userId])
 
     useEffect(() => {
         const fetchQuizzes = async () => {

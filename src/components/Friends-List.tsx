@@ -7,6 +7,8 @@ import {Button} from "@/components/ui/button"
 import {Plus, X} from "lucide-react"
 import {SuccessMessage} from "@/components/Success-Message"
 import {ErrorMessage} from "@/components/Error-Message"
+import { useUser } from "@clerk/nextjs"
+import { InvitationRequest } from "@/actions/socket"
 // import {Socket} from "socket.io-client"
 // import {useUser} from "@clerk/nextjs"
 
@@ -17,8 +19,8 @@ interface FriendsListProps {
 }
 
 export function FriendsList({ friends, onUpdate }: FriendsListProps) {
-    // const {user} = useUser()
-    // const userId = user?.id
+    const {user} = useUser()
+    const userId = user?.id
     const removeFriend = async (friendId: string) => {
         console.log('Removing friend:', friendId)
         onUpdate()
@@ -26,10 +28,14 @@ export function FriendsList({ friends, onUpdate }: FriendsListProps) {
 
     const inviteFriend = async (friendId: string) => {
         console.log('Inviting friend:', friendId)
-        // if (userId && friendId && socketRef) {
-        //     socketRef.emit("inviteFriend", { recipientId: friendId, senderId: userId })
-        //     console.log('Invited friend:', friendId)
-        // }
+        if(userId && friendId) {
+            try {
+                const res = await InvitationRequest(userId, friendId)
+                console.log("Invitation sent:", res)
+            } catch (err) {
+                console.error("Error sending invitation:", err)
+            }
+        }
     }
 
     return (
