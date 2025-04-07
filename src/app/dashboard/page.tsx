@@ -7,6 +7,7 @@ import { Friends } from '@/types'
 import { GetFriendRequestsFromId, GetFriendsFromId } from '@/lib/friends'
 import FriendshipDialog from '@/components/Friendship-Dialog'
 import { RegisterUser } from '@/actions/socket'
+import {pollMessages} from "@/actions/socket-message";
 
 export default function DashboardPage() {
     const [quizzes, setQuizzes] = useState<{ id: string; title: string }[]>([])
@@ -46,6 +47,23 @@ export default function DashboardPage() {
         }
         fetchQuizzes()
     }, [])
+
+    useEffect(() => {
+        if (!userId) return
+
+        const interval = setInterval(async () => {
+            const messages = await pollMessages(userId)
+
+            if (messages && messages.length > 0) {
+                for (const msg of messages) {
+                    console.log(`🔔 [${msg.type}]`, msg.message)
+                    // You can do UI updates here
+                }
+            }
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [userId])
 
     const getFriends = useCallback(async () => {
         try {
